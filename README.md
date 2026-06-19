@@ -26,7 +26,7 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 ## Daily commands
 
 ```powershell
-scripts\start.ps1        # start Ollama and optional Open WebUI
+scripts\start.ps1        # start Ollama and optional Open WebUI via Podman
 scripts\stop.ps1         # stop Open WebUI container
 scripts\healthcheck.ps1  # check local services
 ollama list              # list local models
@@ -101,6 +101,20 @@ Analyze local CSV/XLSX files without uploading data:
 ```
 
 Outputs are saved under `reports/<scope>/<file-name>/`, including a data profile CSV, charts, and an optional local-LLM executive summary.
+
+## Mobile application testing support
+
+The workbench includes a local static review helper for Android APK and iOS IPA files. It does not upload app binaries and does not perform dynamic testing, device testing, bypassing, or exploitation. Only test apps you own or are authorized to assess.
+
+```powershell
+# APK static review
+.\.venv\Scripts\python.exe app\mobile_app_review.py --file mobile\samples\example.apk
+
+# IPA static review
+.\.venv\Scripts\python.exe app\mobile_app_review.py --file mobile\samples\example.ipa --no-llm
+```
+
+Reports are saved under `mobile/reports/`. For deeper APK metadata, install Android SDK build tools so `aapt` is available in PATH. IPA review extracts safe metadata from `Payload/*.app/Info.plist` when present.
 
 ## Optional automation
 
