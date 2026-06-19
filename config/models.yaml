@@ -1,0 +1,16 @@
+# Local model aliases. Change names to any Ollama model you have pulled.
+default_chat_model: llama3.2:3b
+embedding_model: nomic-embed-text
+models:
+  fast_general:
+    name: llama3.2:3b
+    purpose: Fast everyday chat on CPU/integrated GPU.
+  better_reasoning:
+    name: qwen2.5:7b
+    purpose: Better reasoning when you can wait longer.
+  coding_helper:
+    name: qwen2.5-coder:7b
+    purpose: Coding and technical helper tasks.
+  lightweight:
+    name: phi3:mini
+    purpose: Quick drafts and low-memory systems.
