@@ -1,0 +1,16 @@
+ollama:
+  base_url: http://127.0.0.1:11434
+open_webui:
+  url: http://localhost:3000
+rag:
+  chunk_size: 900
+  chunk_overlap: 120
+  top_k: 5
+  similarity_threshold: 0.15
+reports:
+  output_dir: reports
+privacy:
+  require_scope: true
+  allowed_scopes:
+    - work
+    - personal
