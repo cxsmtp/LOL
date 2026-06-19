@@ -3,6 +3,7 @@ import argparse, json, plistlib, shutil, subprocess, zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+from security_guard import assert_zero_egress, audit_event
 
 SUSPICIOUS_ANDROID_PERMISSIONS = [
     "READ_SMS", "SEND_SMS", "RECEIVE_SMS", "READ_CONTACTS", "RECORD_AUDIO",
@@ -19,6 +20,28 @@ def zip_summary(path: Path) -> dict:
             "top_level_entries": sorted({n.split("/")[0] for n in names if n})[:50],
             "interesting_files": [n for n in names if any(x in n.lower() for x in ["manifest", "plist", "privacy", "firebase", "google-services", "entitlements"])][:100],
         }
+
+def scan_zip_for_terms(path: Path, terms: list[str]) -> list[str]:
+    """Best-effort scan of small text-like archive entries for terms.
+
+    APK manifests are commonly binary XML, so this does not replace Android
+    build tools. It still helps with test fixtures and archives containing
+    plain-text metadata.
+    """
+    found: set[str] = set()
+    with zipfile.ZipFile(path) as zf:
+        for info in zf.infolist():
+            if info.file_size > 2_000_000 or info.is_dir():
+                continue
+            try:
+                data = zf.read(info.filename).decode("utf-8", errors="ignore")
+            except Exception:
+                continue
+            upper = data.upper()
+            for term in terms:
+                if term.upper() in upper:
+                    found.add(term)
+    return sorted(found)
 
 def run_if_available(command: list[str]) -> tuple[bool, str]:
     if not shutil.which(command[0]):
@@ -37,8 +60,8 @@ def analyze_apk(path: Path) -> dict:
         report["package_hint"] = next((line for line in output.splitlines() if line.startswith("package:")), "")
         report["permission_findings"] = [p for p in SUSPICIOUS_ANDROID_PERMISSIONS if p in output]
     else:
-        report["permission_findings"] = []
-        report["note"] = "Install Android build tools for deeper APK metadata: aapt or apkanalyzer."
+        report["permission_findings"] = scan_zip_for_terms(path, SUSPICIOUS_ANDROID_PERMISSIONS)
+        report["note"] = "Install Android build tools for deeper APK metadata: aapt or apkanalyzer. Fallback ZIP text scanning is best-effort only."
     return report
 
 def analyze_ipa(path: Path) -> dict:
@@ -71,6 +94,7 @@ def main() -> None:
     parser.add_argument("--model", help="Optional Ollama model for summary")
     parser.add_argument("--no-llm", action="store_true", help="Skip local LLM summary")
     args = parser.parse_args()
+    assert_zero_egress("mobile_app_review", "mobile_static_scan")
     path = Path(args.file)
     if not path.exists():
         raise SystemExit(f"File not found: {path}")

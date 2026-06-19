@@ -6,6 +6,7 @@ from docx import Document
 from pypdf import PdfReader
 import chromadb
 from utils import require_scope, scope_dir, vector_dir, check_ollama, ollama_embed, rebuild_vector_store
+from security_guard import assert_zero_egress, audit_event
 
 def read_file(path: Path) -> str:
     ext=path.suffix.lower()
@@ -28,6 +29,7 @@ def main():
     ap.add_argument("--scope", required=True, choices=["work","personal"])
     ap.add_argument("--rebuild", action="store_true", help="Delete and rebuild this scope's vector store.")
     args=ap.parse_args(); require_scope(args.scope)
+    assert_zero_egress("ingest_documents", "rag_ingestion")
     print("WARNING: Keep confidential data local and follow company policy before ingesting customer/work documents.")
     if not check_ollama(): raise SystemExit("Ollama is not reachable. Run scripts/start.ps1 and pull the embedding model.")
     if args.rebuild: rebuild_vector_store(args.scope)

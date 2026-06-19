@@ -1,5 +1,5 @@
 ollama:
-  base_url: http://localhost:11434
+  base_url: http://127.0.0.1:11434
 open_webui:
   url: http://localhost:3000
 rag:

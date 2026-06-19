@@ -2,11 +2,13 @@ from __future__ import annotations
 import argparse
 import chromadb
 from utils import require_scope, vector_dir, check_ollama, ollama_embed, ollama_generate, chat_model
+from security_guard import assert_zero_egress
 
 def main():
     ap=argparse.ArgumentParser(description="Ask questions over a local work or personal document store.")
     ap.add_argument("--scope", required=True, choices=["work","personal"]); ap.add_argument("--question", required=True); ap.add_argument("--model")
     args=ap.parse_args(); require_scope(args.scope)
+    assert_zero_egress("ask_documents", "rag_query")
     if not check_ollama(): raise SystemExit("Ollama is not reachable. Run scripts/start.ps1")
     col=chromadb.PersistentClient(path=str(vector_dir(args.scope))).get_or_create_collection(f"{args.scope}_documents")
     qemb=ollama_embed([args.question])[0]

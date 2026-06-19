@@ -1,11 +1,11 @@
 # local-ai-workbench
 
-A practical, local-first AI workspace for a Windows 11 laptop. It uses Ollama for local inference, optional Open WebUI for chat, Python utilities for document Q&A/RAG and data analysis, and strict `work` vs `personal` folders so knowledge bases do not mix.
+A practical, local-first AI workspace for a Windows 11 laptop. It uses Ollama for local inference, optional Open WebUI for chat via Podman, Python utilities for document Q&A/RAG and data analysis, and strict `work` vs `personal` folders so knowledge bases do not mix.
 
 ## First 30 minutes setup
 
 1. Install Ollama from <https://ollama.com/download>.
-2. Optional: install Docker Desktop if you want Open WebUI at `http://localhost:3000`.
+2. Optional: install Podman Desktop if you want Open WebUI at `http://localhost:3000`.
 3. Open PowerShell in this folder.
 4. Run:
 
@@ -140,3 +140,58 @@ Then test end-to-end with a small non-confidential `.txt` file in `data/personal
 - Add OCR for scanned PDFs.
 - Add per-project workspaces inside `work` and `personal`.
 - Add backup/restore scripts for vector stores and reports.
+
+## Zero Data Egress Mode
+
+Zero-egress mode is enabled by default in `config/security.yaml`. It allows only `localhost` and `127.0.0.1` on approved local ports and blocks external URLs from Python runtime calls where practical.
+
+**Important warning:** Zero-egress mode reduces the risk of data leaving the laptop by enforcing local-only configuration, blocking external URLs, and adding firewall controls. It does not protect against malware, compromised operating system components, user-approved uploads, browser activity outside this tool, or manually copying data into cloud services.
+
+What it protects:
+- Prompts, documents, extracted text, embeddings, reports, mobile scan findings, and vector data used by this project.
+- Local Ollama calls to `http://127.0.0.1:11434` or `http://localhost:11434`.
+- Open WebUI bound to localhost through Podman.
+
+What is blocked:
+- External LLMs, hosted embeddings, cloud OCR, remote vector databases, web search, plugin marketplaces, external mobile scanning services, telemetry, analytics, and runtime package/model downloads.
+
+Core commands:
+
+```powershell
+python app\security_status.py
+scripts\enable-zero-egress.ps1
+scripts\test-egress.ps1
+scripts\disable-zero-egress.ps1
+scripts\purge-local-data.ps1 -Reports
+```
+
+Temporarily disable zero-egress only during a controlled setup/update window. Do not use real customer/work data while Codex or any cloud coding assistant is building or modifying this project.
+
+## GUI Launcher
+
+A simple laptop-friendly Tkinter launcher is available:
+
+```powershell
+python app\gui_launcher.py
+```
+
+It shows the current security posture:
+- ZERO-EGRESS MODE: ON / OFF
+- Firewall Guard: ON / OFF or unknown
+- External URLs: BLOCKED / ALLOWED
+- Cloud APIs: BLOCKED / ALLOWED
+- Ollama Binding expectation
+
+If zero-egress mode is OFF, the GUI warns before opening work or personal folders.
+
+## Automated Tests
+
+Run local automated checks with:
+
+```powershell
+python -m py_compile app\*.py
+python -m unittest discover -s tests -v
+python app\security_status.py
+```
+
+These tests cover zero-egress URL blocking, environment API-key detection/redaction, APK fallback scanning, and IPA metadata extraction.

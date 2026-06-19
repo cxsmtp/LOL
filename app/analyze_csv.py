@@ -4,11 +4,13 @@ from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
 from utils import require_scope, ROOT, ollama_generate, check_ollama
+from security_guard import assert_zero_egress
 
 def main():
     ap=argparse.ArgumentParser(description="Analyze a local CSV/XLSX and write local reports.")
     ap.add_argument("--file", required=True); ap.add_argument("--scope", required=True, choices=["work","personal"]); ap.add_argument("--model")
     args=ap.parse_args(); require_scope(args.scope)
+    assert_zero_egress("analyze_csv", "local_data_analysis")
     path=Path(args.file); 
     if not path.exists(): raise SystemExit(f"File not found: {path}")
     df=pd.read_excel(path) if path.suffix.lower() in {".xlsx",".xls"} else pd.read_csv(path)

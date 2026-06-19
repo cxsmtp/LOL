@@ -1,0 +1,16 @@
+zero_egress_mode: true
+allow_network: false
+allow_cloud_llm: false
+allow_remote_embeddings: false
+allow_telemetry: false
+allow_auto_update: false
+allow_external_urls: false
+allowed_hosts:
+  - "127.0.0.1"
+  - "localhost"
+allowed_ports:
+  - 11434
+  - 3000
+  - 8080
+embedding_provider: "local_ollama"
+embedding_base_url: "http://127.0.0.1:11434"
