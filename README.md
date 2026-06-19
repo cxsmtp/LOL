@@ -1,11 +1,11 @@
 # local-ai-workbench
 
-A practical, local-first AI workspace for a Windows 11 laptop. It uses Ollama for local inference, optional Open WebUI for chat via Podman, Python utilities for document Q&A/RAG and data analysis, and strict `work` vs `personal` folders so knowledge bases do not mix.
+A practical, local-first AI workspace for a Windows 11 laptop. It uses Ollama for local inference, optional Open WebUI for chat, Python utilities for document Q&A/RAG and data analysis, and strict `work` vs `personal` folders so knowledge bases do not mix.
 
 ## First 30 minutes setup
 
 1. Install Ollama from <https://ollama.com/download>.
-2. Optional: install Podman Desktop if you want Open WebUI at `http://localhost:3000`.
+2. Optional: install Docker Desktop if you want Open WebUI at `http://localhost:3000`.
 3. Open PowerShell in this folder.
 4. Run:
 
